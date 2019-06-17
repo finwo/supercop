@@ -1,0 +1,17 @@
+{
+  "name": "supercop",
+  "version": "0.0.1",
+  "description": "cross-compiled javascript implementation of ed25519 based on supercop-ref10",
+  "main": "index.js",
+  "homepage": "http://git.finwo.net/supercop-js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{print $2}' | sed 's/[\",]//g' | tr -d '[[:space:]]') && npm deprecate \"supercop@<${PACKAGE_VERSION}\" \"Rolling release, please update to ${PACKAGE_VERSION}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://git.finwo.net/supercop-js"
+  },
+  "author": "Robin Bron <finwo@pm.me>",
+  "license": "MIT"
+}
