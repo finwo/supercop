@@ -2,11 +2,11 @@ var Module = require('./supercop.js')
 
 function randomBytes(length) {
   return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
-}
+};
 
 exports.createSeed = function(){
-  return randomBytes(32)
-}
+  return randomBytes(32);
+};
 
 exports.createKeyPair = function(seed){
   if(!Buffer.isBuffer(seed)){
@@ -27,7 +27,7 @@ exports.createKeyPair = function(seed){
     publicKey: new Buffer(pubKey),
     secretKey: new Buffer(privKey)
   }
-}
+};
 
 exports.sign = function(msg, pubKey, privKey){
   if(!Buffer.isBuffer(msg) || !Buffer.isBuffer(pubKey) || !Buffer.isBuffer(privKey)){
