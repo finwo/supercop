@@ -1,0 +1,3 @@
+[submodule "lib/supercop"]
+	path = lib/supercop
+	url = git://git.finwo.net/supercop
