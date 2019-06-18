@@ -1,6 +1,6 @@
 {
   "name": "supercop",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "cross-compiled javascript implementation of ed25519 based on supercop-ref10",
   "main": "index.js",
   "homepage": "http://git.finwo.net/supercop-js",
