@@ -13,5 +13,8 @@
     "url": "git://git.finwo.net/supercop-js"
   },
   "author": "Robin Bron <finwo@pm.me>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "tape": "^4.10.2"
+  }
 }
