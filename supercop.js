@@ -1981,3 +1981,4 @@ run();
 
 
 
+if ('undefined' !== typeof module) module.exports = Module;
