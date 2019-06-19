@@ -1,4 +1,5 @@
-var Module = require('./supercop.js');
+const Module   = require('./supercop.js');
+const isBuffer = require('is-buffer');
 
 function randomBytes(length) {
   return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
@@ -8,68 +9,68 @@ exports.createSeed = function(){
   return randomBytes(32);
 };
 
-exports.createKeyPair = function(seed){
+exports.createKeyPair = function(seed) {
   if(!Buffer.isBuffer(seed)){
     throw new Error('not buffers!');
   }
-  var seedPtr = Module._malloc(32);
-  var seedBuf = new Uint8Array(Module.HEAPU8.buffer, seedPtr, 32);
-  var pubKeyPtr = Module._malloc(32);
-  var pubKey = new Uint8Array(Module.HEAPU8.buffer, pubKeyPtr, 32);
-  var privKeyPtr = Module._malloc(64);
-  var privKey = new Uint8Array(Module.HEAPU8.buffer, privKeyPtr, 64);
+  var seedPtr      = Module._malloc(32);
+  var seedBuf      = new Uint8Array(Module.HEAPU8.buffer, seedPtr, 32);
+  var publicKeyPtr = Module._malloc(32);
+  var publicKey    = new Uint8Array(Module.HEAPU8.buffer, publicKeyPtr, 32);
+  var secretKeyPtr = Module._malloc(64);
+  var secretKey    = new Uint8Array(Module.HEAPU8.buffer, secretKeyPtr, 64);
   seedBuf.set(seed);
-  Module._create_keypair(pubKeyPtr, privKeyPtr, seedPtr);
+  Module._create_keypair(publicKeyPtr, secretKeyPtr, seedPtr);
   Module._free(seedPtr);
-  Module._free(pubKeyPtr);
-  Module._free(privKeyPtr);
+  Module._free(publicKeyPtr);
+  Module._free(secretKeyPtr);
   return {
-    publicKey: new Buffer(pubKey),
-    secretKey: new Buffer(privKey),
+    publicKey: new Buffer(publicKey),
+    secretKey: new Buffer(secretKey),
   };
 };
 
-exports.sign = function(msg, pubKey, privKey){
-  if(!Buffer.isBuffer(msg) || !Buffer.isBuffer(pubKey) || !Buffer.isBuffer(privKey)){
+exports.sign = function(message, publicKey, secretKey){
+  if(!Buffer.isBuffer(message) || !Buffer.isBuffer(publicKey) || !Buffer.isBuffer(secretKey)){
     throw new Error('not buffers!');
   }
-  var msgLen = msg.length;
-  var msgArrPtr = Module._malloc(msgLen);
-  var msgArr = new Uint8Array(Module.HEAPU8.buffer, msgArrPtr, msgLen);
-  var pubKeyArrPtr = Module._malloc(32);
-  var pubKeyArr = new Uint8Array(Module.HEAPU8.buffer, pubKeyArrPtr, 32);
-  var privKeyArrPtr = Module._malloc(64);
-  var privKeyArr = new Uint8Array(Module.HEAPU8.buffer, privKeyArrPtr, 64);
+  var messageLen = message.length;
+  var messageArrPtr = Module._malloc(messageLen);
+  var messageArr = new Uint8Array(Module.HEAPU8.buffer, messageArrPtr, messageLen);
+  var publicKeyArrPtr = Module._malloc(32);
+  var publicKeyArr = new Uint8Array(Module.HEAPU8.buffer, publicKeyArrPtr, 32);
+  var secretKeyArrPtr = Module._malloc(64);
+  var secretKeyArr = new Uint8Array(Module.HEAPU8.buffer, secretKeyArrPtr, 64);
   var sigPtr = Module._malloc(64);
   var sig = new Uint8Array(Module.HEAPU8.buffer, sigPtr, 64);
-  msgArr.set(msg);
-  pubKeyArr.set(pubKey);
-  privKeyArr.set(privKey);
-  Module._sign(sigPtr, msgArrPtr, msgLen, pubKeyArrPtr, privKeyArrPtr);
-  Module._free(msgArrPtr);
-  Module._free(pubKeyArrPtr);
-  Module._free(privKeyArrPtr);
+  messageArr.set(message);
+  publicKeyArr.set(publicKey);
+  secretKeyArr.set(secretKey);
+  Module._sign(sigPtr, messageArrPtr, messageLen, publicKeyArrPtr, secretKeyArrPtr);
+  Module._free(messageArrPtr);
+  Module._free(publicKeyArrPtr);
+  Module._free(secretKeyArrPtr);
   Module._free(sigPtr);
   return new Buffer(sig);
 };
 
-exports.verify = function(sig, msg, pubKey){
-  if(!Buffer.isBuffer(msg) || !Buffer.isBuffer(sig) || !Buffer.isBuffer(pubKey)){
+exports.verify = function(sig, message, publicKey){
+  if(!Buffer.isBuffer(message) || !Buffer.isBuffer(sig) || !Buffer.isBuffer(publicKey)){
     throw new Error('not buffers!');
   }
-  var msgLen = msg.length;
-  var msgArrPtr = Module._malloc(msgLen);
-  var msgArr = new Uint8Array(Module.HEAPU8.buffer, msgArrPtr, msgLen);
+  var messageLen = message.length;
+  var messageArrPtr = Module._malloc(messageLen);
+  var messageArr = new Uint8Array(Module.HEAPU8.buffer, messageArrPtr, messageLen);
   var sigArrPtr = Module._malloc(64);
   var sigArr = new Uint8Array(Module.HEAPU8.buffer, sigArrPtr, 64);
-  var pubKeyArrPtr = Module._malloc(32);
-  var pubKeyArr = new Uint8Array(Module.HEAPU8.buffer, pubKeyArrPtr, 32);
-  msgArr.set(msg);
+  var publicKeyArrPtr = Module._malloc(32);
+  var publicKeyArr = new Uint8Array(Module.HEAPU8.buffer, publicKeyArrPtr, 32);
+  messageArr.set(message);
   sigArr.set(sig);
-  pubKeyArr.set(pubKey);
-  var res =  Module._verify(sigArrPtr, msgArrPtr, msgLen, pubKeyArrPtr) === 1;
-  Module._free(msgArrPtr);
+  publicKeyArr.set(publicKey);
+  var res =  Module._verify(sigArrPtr, messageArrPtr, messageLen, publicKeyArrPtr) === 1;
+  Module._free(messageArrPtr);
   Module._free(sigArrPtr);
-  Module._free(pubKeyArrPtr);
+  Module._free(publicKeyArrPtr);
   return res;
 };
