@@ -1,4 +1,4 @@
-const Module   = require('webassembly').load('supercop.wasm');
+const Module   = require('webassembly').load_buffer(require('./supercop.wasm.js'));
 const isBuffer = require('is-buffer');
 
 async function randomBytes(length) {
