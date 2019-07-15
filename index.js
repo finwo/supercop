@@ -93,7 +93,7 @@ exports.sign = async function(message, publicKey, secretKey){
   publicKeyArr.set(publicKey);
   secretKeyArr.set(secretKey);
 
-  fn.sign(sigPtr, messageArrPtr, messageLen, publicKeyArrPtr, secretKeyArrPtr);
+  await fn.sign(sigPtr, messageArrPtr, messageLen, publicKeyArrPtr, secretKeyArrPtr);
 
   fn._free(messageArrPtr);
   fn._free(publicKeyArrPtr);
