@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "is-buffer": "^2.0.3",
-    "webassembly": "^0.11.0"
+    "webassembly": "https://github.com/finwo/webassembly/tarball/master"
   }
 }

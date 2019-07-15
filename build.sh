@@ -8,3 +8,8 @@ git submodule update --force --init --recursive
 
 # Compile
 node_modules/.bin/wa compile -o supercop.wasm supercop.c
+
+# Make a .js version of the binaries
+cat <<EOJS > supercop.wasm.js
+module.exports = Buffer.from('$(base64 -w 0 < supercop.wasm)', 'base64');
+EOJS

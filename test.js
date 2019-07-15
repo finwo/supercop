@@ -1,6 +1,6 @@
 const isBuffer = require('is-buffer');
 const test     = require('tape');
-const lib      = require('./index.js');
+const lib      = require('./index');
 
 test('Type checks', t => {
   t.plan(7);
