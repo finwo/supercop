@@ -15,7 +15,8 @@
   "author": "Robin Bron <finwo@pm.me>",
   "license": "MIT",
   "devDependencies": {
-    "tape": "^4.10.2"
+    "tape": "^4.10.2",
+    "webassembly": "^0.11.0"
   },
   "dependencies": {
     "is-buffer": "^2.0.3"
