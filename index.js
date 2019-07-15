@@ -116,6 +116,8 @@ exports.verify = async function(signature, message, publicKey){
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
   if ('string' === typeof message) message = Buffer.from(message);
+  if (Array.isArray(signature)) signature = Buffer.from(signature);
+  if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
   await checkArguments({signature,message,publicKey});
 
   var messageLen      = message.length;
