@@ -46,6 +46,7 @@ exports.createSeed = function(){
 };
 
 exports.createKeyPair = function(seed) {
+  if (Array.isArray(seed)) seed = Buffer.from(seed);
   checkArguments({seed});
   var seedPtr      = Module._malloc(32);
   var seedBuf      = new Uint8Array(Module.HEAPU8.buffer, seedPtr, 32);
