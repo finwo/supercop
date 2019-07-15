@@ -1,11 +1,11 @@
-const Module   = require('./supercop.js');
+const Module   = require('webassembly').load('supercop.wasm');
 const isBuffer = require('is-buffer');
 
-function randomBytes(length) {
+async function randomBytes(length) {
   return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
 }
 
-function checkArguments( namedArguments, callback ) {
+async function checkArguments( namedArguments, callback ) {
   callback = callback || function( err ) {
     if (!err) return;
     if (err instanceof Error) throw err;
@@ -41,69 +41,91 @@ function checkArguments( namedArguments, callback ) {
 exports._checkArguments = checkArguments;
 exports._randomBytes    = randomBytes;
 
-exports.createSeed = function(){
+exports.createSeed = async function(){
   return randomBytes(32);
 };
 
-exports.createKeyPair = function(seed) {
+exports.createKeyPair = async function(seed) {
+  const fn  = (await Module).exports;
+  const mem = (await Module).memory;
   if (Array.isArray(seed)) seed = Buffer.from(seed);
-  checkArguments({seed});
-  var seedPtr      = Module._malloc(32);
-  var seedBuf      = new Uint8Array(Module.HEAPU8.buffer, seedPtr, 32);
-  var publicKeyPtr = Module._malloc(32);
-  var publicKey    = new Uint8Array(Module.HEAPU8.buffer, publicKeyPtr, 32);
-  var secretKeyPtr = Module._malloc(64);
-  var secretKey    = new Uint8Array(Module.HEAPU8.buffer, secretKeyPtr, 64);
+  await checkArguments({seed});
+
+  const seedPtr      = fn._malloc(32);
+  const publicKeyPtr = fn._malloc(32);
+  const secretKeyPtr = fn._malloc(64);
+
+  const seedBuf   = new Uint8Array(mem.buffer, seedPtr     , 32);
+  const publicKey = new Uint8Array(mem.buffer, publicKeyPtr, 32);
+  const secretKey = new Uint8Array(mem.buffer, secretKeyPtr, 64);
+
   seedBuf.set(seed);
-  Module._create_keypair(publicKeyPtr, secretKeyPtr, seedPtr);
-  Module._free(seedPtr);
-  Module._free(publicKeyPtr);
-  Module._free(secretKeyPtr);
+
+  fn.create_keypair(publicKeyPtr, secretKeyPtr, seedPtr);
+
+  fn._free(seedPtr);
+  fn._free(publicKeyPtr);
+  fn._free(secretKeyPtr);
+
   return {
-    publicKey: new Buffer(publicKey),
-    secretKey: new Buffer(secretKey),
+    publicKey: Buffer.from(publicKey),
+    secretKey: Buffer.from(secretKey),
   };
 };
 
-exports.sign = function(message, publicKey, secretKey){
+exports.sign = async function(message, publicKey, secretKey){
+  const fn  = (await Module).exports;
+  const mem = (await Module).memory;
   if ('string' === typeof message) message = Buffer.from(message);
-  checkArguments({message,publicKey,secretKey});
-  var messageLen = message.length;
-  var messageArrPtr = Module._malloc(messageLen);
-  var messageArr = new Uint8Array(Module.HEAPU8.buffer, messageArrPtr, messageLen);
-  var publicKeyArrPtr = Module._malloc(32);
-  var publicKeyArr = new Uint8Array(Module.HEAPU8.buffer, publicKeyArrPtr, 32);
-  var secretKeyArrPtr = Module._malloc(64);
-  var secretKeyArr = new Uint8Array(Module.HEAPU8.buffer, secretKeyArrPtr, 64);
-  var sigPtr = Module._malloc(64);
-  var sig = new Uint8Array(Module.HEAPU8.buffer, sigPtr, 64);
+  await checkArguments({message,publicKey,secretKey});
+
+  var messageLen      = message.length;
+  var messageArrPtr   = fn._malloc(messageLen);
+  var messageArr      = new Uint8Array(mem.buffer, messageArrPtr, messageLen);
+  var publicKeyArrPtr = fn._malloc(32);
+  var publicKeyArr    = new Uint8Array(mem.buffer, publicKeyArrPtr, 32);
+  var secretKeyArrPtr = fn._malloc(64);
+  var secretKeyArr    = new Uint8Array(mem.buffer, secretKeyArrPtr, 64);
+  var sigPtr          = fn._malloc(64);
+  var sig             = new Uint8Array(mem.buffer, sigPtr, 64);
+
   messageArr.set(message);
   publicKeyArr.set(publicKey);
   secretKeyArr.set(secretKey);
-  Module._sign(sigPtr, messageArrPtr, messageLen, publicKeyArrPtr, secretKeyArrPtr);
-  Module._free(messageArrPtr);
-  Module._free(publicKeyArrPtr);
-  Module._free(secretKeyArrPtr);
-  Module._free(sigPtr);
-  return new Buffer(sig);
+
+  fn.sign(sigPtr, messageArrPtr, messageLen, publicKeyArrPtr, secretKeyArrPtr);
+
+  fn._free(messageArrPtr);
+  fn._free(publicKeyArrPtr);
+  fn._free(secretKeyArrPtr);
+  fn._free(sigPtr);
+
+  return Buffer.from(sig);
 };
 
-exports.verify = function(signature, message, publicKey){
+exports.verify = async function(signature, message, publicKey){
+  const fn  = (await Module).exports;
+  const mem = (await Module).memory;
   if ('string' === typeof message) message = Buffer.from(message);
-  checkArguments({signature,message,publicKey});
-  var messageLen = message.length;
-  var messageArrPtr = Module._malloc(messageLen);
-  var messageArr = new Uint8Array(Module.HEAPU8.buffer, messageArrPtr, messageLen);
-  var signatureArrPtr = Module._malloc(64);
-  var signatureArr = new Uint8Array(Module.HEAPU8.buffer, signatureArrPtr, 64);
-  var publicKeyArrPtr = Module._malloc(32);
-  var publicKeyArr = new Uint8Array(Module.HEAPU8.buffer, publicKeyArrPtr, 32);
+  await checkArguments({signature,message,publicKey});
+
+  var messageLen      = message.length;
+  var messageArrPtr   = fn._malloc(messageLen);
+  var messageArr      = new Uint8Array(mem.buffer, messageArrPtr, messageLen);
+  var signatureArrPtr = fn._malloc(64);
+  var signatureArr    = new Uint8Array(mem.buffer, signatureArrPtr, 64);
+  var publicKeyArrPtr = fn._malloc(32);
+  var publicKeyArr    = new Uint8Array(mem.buffer, publicKeyArrPtr, 32);
+
   messageArr.set(message);
   signatureArr.set(signature);
   publicKeyArr.set(publicKey);
-  var res =  Module._verify(signatureArrPtr, messageArrPtr, messageLen, publicKeyArrPtr) === 1;
-  Module._free(messageArrPtr);
-  Module._free(signatureArrPtr);
-  Module._free(publicKeyArrPtr);
+
+  var res =  fn.verify(signatureArrPtr, messageArrPtr, messageLen, publicKeyArrPtr) === 1;
+
+  fn._free(messageArrPtr);
+  fn._free(signatureArrPtr);
+  fn._free(publicKeyArrPtr);
+
   return res;
 };

@@ -1,4 +1,10 @@
 #!/bin/sh
 
-emcc supercop.c lib/supercop/src/*.c -o supercop.js -O1 -s WASM=0
-echo "if ('undefined' !== typeof module) module.exports = Module;" >> supercop.js
+# Reset/fetch submodules
+git submodule update --force --init --recursive
+
+# Apply patches
+( cd lib/supercop && patch -p1 < ../../patch/supercop/00-single-file-compile.patch )
+
+# Compile
+node_modules/.bin/wa compile --bare -o supercop.wasm supercop.c
