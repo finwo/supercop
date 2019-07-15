@@ -1,0 +1,4 @@
+lib/
+patch/
+.editorconfig
+.eslint*
