@@ -67,10 +67,17 @@ exports.createKeyPair = async function(seed) {
   fn._free(publicKeyPtr);
   fn._free(secretKeyPtr);
 
-  return {
+  return Object.create({
+    sign: async function( message ) {
+      return exports.sign( message, this.publicKey, this.secretKey );
+    },
+    verify: async function( signature, message ) {
+      return exports.verify( signature, message, this.publicKey );
+    },
+  }, {
     publicKey: Buffer.from(publicKey),
     secretKey: Buffer.from(secretKey),
-  };
+  });
 };
 
 exports.sign = async function(message, publicKey, secretKey){
