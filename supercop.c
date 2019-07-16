@@ -3,13 +3,13 @@
 #endif
 
 #include <webassembly.h>
-#include "lib/supercop/src/add_scalar.c"
+/* #include "lib/supercop/src/add_scalar.c" */
 #include "lib/supercop/src/fe.c"
 #include "lib/supercop/src/ge.c"
-#include "lib/supercop/src/key_exchange.c"
+/* #include "lib/supercop/src/key_exchange.c" */
 #include "lib/supercop/src/keypair.c"
 #include "lib/supercop/src/sc.c"
-#include "lib/supercop/src/seed.c"
+/* #include "lib/supercop/src/seed.c" */
 #include "lib/supercop/src/sha512.c"
 #include "lib/supercop/src/sign.c"
 #include "lib/supercop/src/verify.c"
