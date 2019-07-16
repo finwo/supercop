@@ -41,7 +41,7 @@ async function checkArguments( namedArguments, callback ) {
 exports._checkArguments = checkArguments;
 exports._randomBytes    = randomBytes;
 
-exports.createSeed = async function(){
+exports.createSeed = function(){
   return randomBytes(32);
 };
 
