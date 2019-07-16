@@ -1,11 +1,11 @@
 const Module   = require('webassembly').load_buffer(require('./supercop.wasm.js'));
 const isBuffer = require('is-buffer');
 
-async function randomBytes(length) {
+function randomBytes(length) {
   return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
 }
 
-async function checkArguments( namedArguments, callback ) {
+function checkArguments( namedArguments, callback ) {
   callback = callback || function( err ) {
     if (!err) return;
     if (err instanceof Error) throw err;
@@ -49,7 +49,7 @@ exports.createKeyPair = async function(seed) {
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
   if (Array.isArray(seed)) seed = Buffer.from(seed);
-  await checkArguments({seed});
+  checkArguments({seed});
 
   const seedPtr      = fn._malloc(32);
   const publicKeyPtr = fn._malloc(32);
@@ -86,7 +86,7 @@ exports.sign = async function(message, publicKey, secretKey){
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
   if ('string' === typeof message) message = Buffer.from(message);
-  await checkArguments({message,publicKey,secretKey});
+  checkArguments({message,publicKey,secretKey});
 
   var messageLen      = message.length;
   var messageArrPtr   = fn._malloc(messageLen);
@@ -118,7 +118,7 @@ exports.verify = async function(signature, message, publicKey){
   if ('string' === typeof message) message = Buffer.from(message);
   if (Array.isArray(signature)) signature = Buffer.from(signature);
   if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
-  await checkArguments({signature,message,publicKey});
+  checkArguments({signature,message,publicKey});
 
   var messageLen      = message.length;
   var messageArrPtr   = fn._malloc(messageLen);
