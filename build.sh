@@ -7,7 +7,7 @@ git submodule update --force --init --recursive
 ( cd lib/supercop && patch -p1 < ../../patch/supercop/00-single-file-compile.patch )
 
 # Compile
-node_modules/.bin/wa compile -o supercop.wasm supercop.c
+node_modules/.bin/wa compile -o supercop.wasm supercop.c "$@"
 
 # Make a .js version of the binaries
 cat <<EOJS > supercop.wasm.js
