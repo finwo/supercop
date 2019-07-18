@@ -45,6 +45,41 @@ exports.createSeed = function(){
   return randomBytes(32);
 };
 
+exports.keyPairFrom = function( data ) {
+  if ('object' !== typeof data) return false;
+  if (!data) return false;
+
+  const keypair = Object.create({
+    sign: async function( message ) {
+      return exports.sign( message, this.publicKey, this.secretKey );
+    },
+    verify: async function( signature, message ) {
+      return exports.verify( signature, message, this.publicKey );
+    },
+  });
+
+  // Fetch public key
+  if (isBuffer(data.pk       )) keypair.publicKey = data.pk;
+  if (isBuffer(data.pub      )) keypair.publicKey = data.pub;
+  if (isBuffer(data.public   )) keypair.publicKey = data.public;
+  if (isBuffer(data.publicKey)) keypair.publicKey = data.publicKey;
+  if (isBuffer(data.publickey)) keypair.publicKey = data.publicKey;
+
+  // Fetch secret key
+  if (isBuffer(data.sk        )) keypair.secretKey = data.sk;
+  if (isBuffer(data.sec       )) keypair.secretKey = data.sec;
+  if (isBuffer(data.secret    )) keypair.secretKey = data.secret;
+  if (isBuffer(data.secretKey )) keypair.secretKey = data.secretKey;
+  if (isBuffer(data.secretkey )) keypair.secretKey = data.secretkey;
+  if (isBuffer(data.pri       )) keypair.secretKey = data.pri;
+  if (isBuffer(data.priv      )) keypair.secretKey = data.priv;
+  if (isBuffer(data.private   )) keypair.secretKey = data.private;
+  if (isBuffer(data.privateKey)) keypair.secretKey = data.privateKey;
+  if (isBuffer(data.privatekey)) keypair.secretKey = data.privatekey;
+
+  return keypair;
+};
+
 exports.createKeyPair = async function(seed) {
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
@@ -67,19 +102,10 @@ exports.createKeyPair = async function(seed) {
   fn._free(publicKeyPtr);
   fn._free(secretKeyPtr);
 
-  const keypair = Object.create({
-    sign: async function( message ) {
-      return exports.sign( message, this.publicKey, this.secretKey );
-    },
-    verify: async function( signature, message ) {
-      return exports.verify( signature, message, this.publicKey );
-    },
+  return exports.keyPairFrom({
+    pk: Buffer.from(publicKey),
+    sk: Buffer.from(secretKey),
   });
-
-  keypair.publicKey = Buffer.from(publicKey);
-  keypair.secretKey = Buffer.from(secretKey);
-
-  return keypair;
 };
 
 exports.sign = async function(message, publicKey, secretKey){
