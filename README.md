@@ -56,17 +56,27 @@ Generates a keypair containing the `.sign` and `.verify` functions
 
 ### lib.createKeyPair( seed )
 
-Generates a keypair from the provided 32-byte seed wieh the following
+Generates a keypair from the provided 32-byte seed with the following
 properties:
 
-- `keypair.publicKey` - A 32-byte public key as a buffer
-- `keypair.secretKey` - A 64-byte secret key as a buffer
-- `keypair.sign`      - Function to sign a message using the keypair
-- `keypair.verify`    - Function to verify a signature using the keypair
+- arguments:
+  - `seed` - a 32-byte byffer
+- returns:
+  - `keypair.publicKey` - A 32-byte public key as a buffer
+  - `keypair.secretKey` - A 64-byte secret key as a buffer
+  - `keypair.sign`      - Function to sign a message using the keypair
+  - `keypair.verify`    - Function to verify a signature using the keypair
 
 ### lib.sign( msg, publicKey, secretKey )
 
-TODO
+Sign a message using the given keypair.
+
+- arguments:
+  - `msg`       - A buffer representing the message
+  - `publicKey` - A 32-byte public key as a buffer
+  - `secretKey` - A 64-byte secret key as a buffer
+- returns:
+  - `signature` - A 64-byte buffer
 
 ### lib.verify( sig, msg, publicKey )
 
