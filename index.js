@@ -63,7 +63,7 @@ exports.keyPairFrom = function( data ) {
   if (isBuffer(data.pub      )) keypair.publicKey = data.pub;
   if (isBuffer(data.public   )) keypair.publicKey = data.public;
   if (isBuffer(data.publicKey)) keypair.publicKey = data.publicKey;
-  if (isBuffer(data.publickey)) keypair.publicKey = data.publicKey;
+  if (isBuffer(data.publickey)) keypair.publicKey = data.publickey;
 
   // Fetch secret key
   if (isBuffer(data.sk        )) keypair.secretKey = data.sk;
