@@ -1,3 +1,6 @@
 [submodule "lib/supercop"]
 	path = lib/supercop
 	url = git://git.finwo.net/supercop-c
+[submodule "lib/libc"]
+	path = lib/libc
+	url = git://git.finwo.net/libc
