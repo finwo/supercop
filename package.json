@@ -20,7 +20,6 @@
     "tape": "^4.10.2"
   },
   "dependencies": {
-    "is-buffer": "^2.0.3",
-    "webassembly": "https://github.com/finwo/webassembly/tarball/master"
+    "is-buffer": "^2.0.3"
   }
 }
