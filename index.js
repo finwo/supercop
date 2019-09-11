@@ -1,5 +1,17 @@
-const Module   = require('webassembly').load_buffer(require('./supercop.wasm.js'));
+let   Module   = null;
 const isBuffer = require('is-buffer');
+
+async function instantiateModule() {
+  if (Module) return;
+  const memory  = new WebAssembly.Memory({initial:4});
+  const program = await WebAssembly.instantiate(require('./supercop.wasm.js'),{env:{memory}});
+
+  Module       = {
+    memory  : memory,
+    instance: program.instance,
+    exports : program.instance.exports,
+  };
+}
 
 function randomBytes(length) {
   return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
@@ -81,6 +93,7 @@ exports.keyPairFrom = function( data ) {
 };
 
 exports.createKeyPair = async function(seed) {
+  await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
   if (Array.isArray(seed)) seed = Buffer.from(seed);
@@ -109,6 +122,7 @@ exports.createKeyPair = async function(seed) {
 };
 
 exports.sign = async function(message, publicKey, secretKey){
+  await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
   if ('string' === typeof message) message = Buffer.from(message);
@@ -139,6 +153,7 @@ exports.sign = async function(message, publicKey, secretKey){
 };
 
 exports.verify = async function(signature, message, publicKey){
+  await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
   if ('string' === typeof message) message = Buffer.from(message);

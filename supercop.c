@@ -1,8 +1,10 @@
-#ifndef ED25519_NO_SEED
-#define ED25519_NO_SEED value
-#endif
+#define ED25519_NO_SEED
 
-#include <webassembly.h>
+#define export __attribute__((visibility("default")))
+
+#include "lib/c/memset.c"
+#include "lib/c/malloc.c"
+
 /* #include "lib/supercop/src/add_scalar.c" */
 #include "lib/supercop/src/fe.c"
 #include "lib/supercop/src/ge.c"
@@ -26,10 +28,10 @@ export int verify(const unsigned char *signature, const unsigned char *message, 
   return ed25519_verify(signature, message, message_len, public_key);
 }
 
-export void * _malloc(size_t size) {
-  return malloc(size);
+export void * _malloc(int n) {
+  return malloc(n);
 }
 
-export void _free(void *ptr) {
-  return free(ptr);
+export void _free(void * p) {
+  free(p);
 }
