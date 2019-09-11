@@ -1,3 +1,5 @@
 node_modules/
 .tern*
 package-lock.json
+*.o
+*.ll
