@@ -2,8 +2,8 @@
 
 #define export __attribute__((visibility("default")))
 
-#include "lib/c/memset.c"
-#include "lib/c/malloc.c"
+#include <malloc.h>
+#include <string.h>
 
 /* #include "lib/supercop/src/add_scalar.c" */
 #include "lib/supercop/src/fe.c"

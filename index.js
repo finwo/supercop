@@ -3,14 +3,21 @@ const isBuffer = require('is-buffer');
 
 async function instantiateModule() {
   if (Module) return;
-  const memory  = new WebAssembly.Memory({initial:4});
-  const program = await WebAssembly.instantiate(require('./supercop.wasm.js'),{env:{memory}});
+  const imports = {};
+  const bytes   = require('./supercop.wasm.js');
+  console.log(bytes);
+  // const p = await WebAssembly.instantiate(bytes, imports);
+  console.log(p);
 
-  Module       = {
-    memory  : memory,
-    instance: program.instance,
-    exports : program.instance.exports,
-  };
+  console.log(i);
+  process.exit(0);
+
+  // Module       = {
+  //   memory  : memory,
+  //   instance: program.instance,
+  //   exports : program.instance.exports,
+  // };
+
 }
 
 function randomBytes(length) {
