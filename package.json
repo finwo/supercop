@@ -3,7 +3,7 @@
   "version": "2.0.3",
   "description": "cross-compiled javascript implementation of ed25519 based on supercop-ref10",
   "main": "index.js",
-  "homepage": "http://git.finwo.net/supercop-js",
+  "homepage": "https://github.com/finwo/supercop",
   "scripts": {
     "test": "node test.js",
     "prepublish": "npm test",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://git.finwo.net/supercop-js"
+    "url": "https://github.com/finwo/supercop"
   },
   "author": "Robin Bron <finwo@pm.me>",
   "license": "MIT",
