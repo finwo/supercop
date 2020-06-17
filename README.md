@@ -1,6 +1,6 @@
 # supercop
 
-[orlp/ed25519](https://github.com/orlp/ed25519) patched and compiled using [dcodeio/webassembly](https://github.com/dcodeio/webassembly)
+[orlp/ed25519](https://github.com/orlp/ed25519) patched and compiled using clang
 
 ## Examples
 
@@ -59,9 +59,9 @@ Generates a keypair containing the `.sign` and `.verify` functions
 Generates a keypair from the provided 32-byte seed with the following
 properties:
 
-- arguments:
+- arguments
   - `seed` - a 32-byte byffer
-- returns:
+- returns
   - `keypair.publicKey` - A 32-byte public key as a buffer
   - `keypair.secretKey` - A 64-byte secret key as a buffer
   - `keypair.sign`      - Function to sign a message using the keypair
@@ -71,21 +71,28 @@ properties:
 
 Sign a message using the given keypair.
 
-- arguments:
+- arguments
   - `msg`       - A buffer representing the message
   - `publicKey` - A 32-byte public key as a buffer
   - `secretKey` - A 64-byte secret key as a buffer
-- returns:
+- returns
   - `signature` - A 64-byte buffer
 
 ### lib.verify( sig, msg, publicKey )
 
-TODO
+Verify a signature for a message and publickey
+
+- arguments
+  - `sig`       - A buffer representing the signature
+  - `msg`       - A buffer representing the signed message
+  - `publicKey` - A 32-byte public key to validate the signature with
+- returns
+  - `valid`     - Boolean, describes whether or not the signature is valid
 
 ### keypair.sign( msg )
 
-TODO
+Generate a signature for a message from the keypair. Calls `lib.sign`, using itself as the keys.
 
 ### keypair.verify( sig, msg )
 
-TODO
+Verify a signature for a message. Calls `lib.verify`, using itself as the key.
