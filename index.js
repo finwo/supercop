@@ -5,9 +5,13 @@ async function instantiateModule() {
   if (Module) return;
 
   const memory  = new WebAssembly.Memory({initial: 2});
-  const sp      = new WebAssembly.Global({value: 'i32', mutable: true});
+  const imports = {env:{memory}};
+
+  if ('function' === WebAssembly.Global) {
+    imports.env.__stack_pointer = new WebAssembly.Global({value: 'i32', mutable: true});
+  }
+
   const bytes   = require('./supercop.wasm.js');
-  const imports = {env:{memory,__stack_pointer:sp}};
   const program = await WebAssembly.instantiate(bytes, imports);
 
   Module       = {
