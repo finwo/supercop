@@ -3,6 +3,7 @@
 #define export __attribute__((visibility("default")))
 
 #include <malloc.h>
+#include <stddef.h>
 #include <string.h>
 
 /* #include "lib/supercop/src/add_scalar.c" */
@@ -28,10 +29,10 @@ export int verify(const unsigned char *signature, const unsigned char *message, 
   return ed25519_verify(signature, message, message_len, public_key);
 }
 
-export void * _malloc(int n) {
+export void *_malloc(size_t n) {
   return malloc(n);
 }
 
-export void _free(void * p) {
+export void _free(void *p) {
   free(p);
 }

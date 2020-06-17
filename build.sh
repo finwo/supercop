@@ -1,5 +1,9 @@
 #!/bin/sh
 
+arch=wasm32
+target=${arch}
+
+
 # # Reset/fetch submodules
 # git submodule update --force --init --recursive
 
@@ -7,21 +11,22 @@
 ( cd lib/supercop && patch -p1 < ../../patch/supercop/00-single-file-compile.patch )
 
 # Build libc
-( cd lib/matter && make clean && make )
+( cd lib/matter && make clean && make -e TARGET=${target} )
 
 clang \
   -nostdinc \
-  --target=wasm32 \
+  --target=${target} \
   -emit-llvm \
   -fvisibility=hidden \
   -fno-builtin \
   -Ilib/matter/include \
+  -Ilib/matter/arch/${target}/include \
   -c \
   -S \
   -Os \
   supercop.c || exit 1
 llc \
-  -march=wasm32 \
+  -march=${arch} \
   -filetype=obj \
   -O3 \
   supercop.ll || exit 1
@@ -33,7 +38,6 @@ wasm-ld \
   -o supercop.wasm \
   -Llib/matter \
   -lmatter \
-  --relocatable \
   supercop.o || exit 1
 
 # Make a .js version of the binaries
