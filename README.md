@@ -72,22 +72,32 @@ properties:
 Sign a message using the given keypair.
 
 - arguments
-  - `msg`       - A buffer representing the message
-  - `publicKey` - A 32-byte public key as a buffer
-  - `secretKey` - A 64-byte secret key as a buffer
+  - `msg`           - A buffer representing the message
+  - `publicKey`     - A 32-byte public key as a buffer
+  - `secretKey`     - A 64-byte secret key as a buffer
 - returns
-  - `signature` - A 64-byte buffer
+  - `signature`     - A 64-byte buffer
 
 ### lib.verify( sig, msg, publicKey )
 
 Verify a signature for a message and publickey
 
 - arguments
-  - `sig`       - A buffer representing the signature
-  - `msg`       - A buffer representing the signed message
-  - `publicKey` - A 32-byte public key to validate the signature with
+  - `sig`           - A buffer representing the signature
+  - `msg`           - A buffer representing the signed message
+  - `publicKey`     - A 32-byte public key to validate the signature with
 - returns
-  - `valid`     - Boolean, describes whether or not the signature is valid
+  - `valid`         - Boolean, describes whether or not the signature is valid
+
+### lib.key_exchange( publicKey, secretKey )
+
+Exchange keys between 2 parties
+
+- arguments
+  - `publicKey`     - A 32-byte public key to generate a shared secret with
+  - `secretKey`     - A 64-byte secret key to generate a shared secret with
+- returns
+  - `sharedSecret`  - A 32-byte shared secret
 
 ### keypair.sign( msg )
 

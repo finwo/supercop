@@ -1,4 +1,5 @@
 const isBuffer = require('is-buffer');
+const crypto   = require('crypto');
 const test     = require('tape');
 const lib      = require('./index');
 
@@ -80,7 +81,7 @@ test('Key generation',async t => {
 test('Signatures',async t => {
   t.plan(2);
 
-  const seed      = await lib.createSeed();
+  const seed      = crypto.randomBytes(32);
   const keys      = await lib.createKeyPair(seed);
   const signature = await lib.sign(Buffer.from('hello there m8'), keys.publicKey, keys.secretKey);
 
@@ -91,7 +92,7 @@ test('Signatures',async t => {
 test('Verify',async t => {
   t.plan(4);
 
-  const seed         = await lib.createSeed();
+  const seed         = crypto.randomBytes(32);
   const keys         = await lib.createKeyPair(seed);
   const messageBuf   = Buffer.from('hello there m8');
   const messageStr   =             'hello there m8';
@@ -102,10 +103,27 @@ test('Verify',async t => {
 
   t.is(Buffer.compare(signatureBuf, signatureStr), 0, 'String and buffer sourced signature match');
 
-  const wrongSeed = await lib.createSeed();
+  const wrongSeed = crypto.randomBytes(32);
   const wrongKeys = await lib.createKeyPair(wrongSeed);
 
   t.is(await lib.verify(signatureBuf, messageBuf, keys.publicKey)     , true , 'Signature verified message');
   t.is(await lib.verify(signatureBuf, wrongMessage, keys.publicKey)   , false, 'Different messaged does not verify');
   t.is(await lib.verify(signatureBuf, messageBuf, wrongKeys.publicKey), false, 'Different public key does not verify');
+});
+
+test('Key Exchange',async t => {
+  t.plan(1);
+
+  const AliceSeed   = crypto.randomBytes(32);
+  const BobSeed     = crypto.randomBytes(32);
+  const CharlieSeed = crypto.randomBytes(32);
+
+  const Alice   = await lib.createKeyPair(AliceSeed);
+  const Bob     = await lib.createKeyPair(BobSeed);
+  const Charlie = await lib.createKeyPair(CharlieSeed);
+
+  const AliceBobSecret = await lib.key_exchange(Alice.publicKey, Bob.secretKey);
+  const BobAliceSecret = await lib.key_exchange(Bob.publicKey, Alice.secretKey);
+
+  t.ok(AliceBobSecret.equals(BobAliceSecret), 'Alice and Bob generate the same shared secret');
 });
