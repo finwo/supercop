@@ -9,7 +9,7 @@
 /* #include "lib/supercop/src/add_scalar.c" */
 #include "lib/supercop/src/fe.c"
 #include "lib/supercop/src/ge.c"
-/* #include "lib/supercop/src/key_exchange.c" */
+#include "lib/supercop/src/key_exchange.c"
 #include "lib/supercop/src/keypair.c"
 #include "lib/supercop/src/sc.c"
 /* #include "lib/supercop/src/seed.c" */
@@ -27,6 +27,10 @@ export void sign(unsigned char *signature, const unsigned char *message, size_t 
 
 export int verify(const unsigned char *signature, const unsigned char *message, size_t message_len, const unsigned char *public_key){
   return ed25519_verify(signature, message, message_len, public_key);
+}
+
+export void key_exchange(unsigned char *shared_secret, const unsigned char *public_key, const unsigned char *private_key) {
+  ed25519_key_exchange(shared_secret, public_key, private_key);
 }
 
 export void *_malloc(size_t n) {

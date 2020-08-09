@@ -189,3 +189,27 @@ exports.verify = async function(signature, message, publicKey){
 
   return res;
 };
+
+exports.key_exchange = async function(publicKey, secretKey) {
+  await instantiateModule();
+  const fn  = (await Module).exports;
+  const mem = (await Module).memory;
+  if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
+  if (Array.isArray(secretKey)) secretKey = Buffer.from(secretKey);
+  checkArguments({publicKey,secretKey});
+
+  const sharedSecretArrPtr = fn._malloc(32);
+  const sharedSecretArr    = new Uint8Array(mem.buffer, sharedSecretArrPtr, 32);
+  const publicKeyArrPtr    = fn._malloc(32);
+  const publicKeyArr       = new Uint8Array(mem.buffer, sharedSecretArrPtr, 32);
+  const secretKeyArrPtr    = fn._malloc(32);
+  const secretKeyArr       = new Uint8Array(mem.buffer, sharedSecretArrPtr, 64);
+
+  fn.key_exchange(sharedSecretArrPtr, publicKeyArrPtr, secretKeyArrPtr);
+
+  fn._free(sharedSecretArrPtr);
+  fn._free(publicKeyArrPtr);
+  fn._free(secretKeyArrPtr);
+
+  return Buffer.from(sharedSecretArr);
+};
