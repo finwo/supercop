@@ -190,7 +190,7 @@ exports.verify = async function(signature, message, publicKey){
   return res;
 };
 
-exports.key_exchange = async function(publicKey, secretKey) {
+exports.keyExchange = async function(publicKey, secretKey) {
   await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;

@@ -26,6 +26,7 @@
     "ed25519",
     "supercop",
     "ref10",
-    "elliptic"
+    "elliptic",
+    "curve"
   ]
 }

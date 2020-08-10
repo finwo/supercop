@@ -89,7 +89,7 @@ Verify a signature for a message and publickey
 - returns
   - `valid`         - Boolean, describes whether or not the signature is valid
 
-### lib.key_exchange( publicKey, secretKey )
+### lib.keyExchange( publicKey, secretKey )
 
 Exchange keys between 2 parties
 
