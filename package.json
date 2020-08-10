@@ -22,6 +22,9 @@
   "dependencies": {
     "is-buffer": "^2.0.3"
   },
+  "funding": {
+    "url": "https://github.com/sponsors/finwo"
+  },
   "keywords": [
     "ed25519",
     "supercop",
