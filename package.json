@@ -21,5 +21,11 @@
   },
   "dependencies": {
     "is-buffer": "^2.0.3"
-  }
+  },
+  "keywords": [
+    "ed25519",
+    "supercop",
+    "ref10",
+    "elliptic"
+  ]
 }
