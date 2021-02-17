@@ -2,10 +2,11 @@
 
 arch=wasm32
 target=${arch}
+CC=$(command -v clang clang-8; true)
+LC=$(command -v llc llc-8; true)
 
-
-# # Reset/fetch submodules
-# git submodule update --force --init --recursive
+# Reset/fetch submodules
+git submodule update --force --init --recursive
 
 # Apply patches
 ( cd lib/supercop && patch -p1 < ../../patch/supercop/00-single-file-compile.patch )
@@ -13,7 +14,7 @@ target=${arch}
 # Build libc
 ( cd lib/matter && make clean && make -e TARGET=${target} )
 
-clang \
+${CC} \
   -nostdinc \
   --target=${target} \
   -emit-llvm \
@@ -25,7 +26,7 @@ clang \
   -S \
   -Os \
   supercop.c || exit 1
-llc \
+${LC} \
   -march=${arch} \
   -filetype=obj \
   -O3 \
