@@ -1,5 +1,6 @@
 let   Module   = null;
 const isBuffer = require('is-buffer');
+const Buff     = ('function' === typeof Buffer) ? Buffer : require('buffer');
 
 async function instantiateModule() {
   if (Module) return;
@@ -11,7 +12,7 @@ async function instantiateModule() {
     imports.env.__stack_pointer = new WebAssembly.Global({value: 'i32', mutable: true});
   }
 
-  const bytes   = require('./supercop.wasm.js');
+  const bytes   = Buff.from(require('./supercop.wasm.js'),'base64');
   const program = await WebAssembly.instantiate(bytes, imports);
 
   Module       = {
@@ -22,7 +23,7 @@ async function instantiateModule() {
 }
 
 function randomBytes(length) {
-  return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
+  return Buff.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
 }
 
 function checkArguments( namedArguments, callback ) {
@@ -104,7 +105,7 @@ exports.createKeyPair = async function(seed) {
   await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
-  if (Array.isArray(seed)) seed = Buffer.from(seed);
+  if (Array.isArray(seed)) seed = Buff.from(seed);
   checkArguments({seed});
 
   const seedPtr      = fn._malloc(32);
@@ -124,8 +125,8 @@ exports.createKeyPair = async function(seed) {
   fn._free(secretKeyPtr);
 
   return exports.keyPairFrom({
-    pk: Buffer.from(publicKey),
-    sk: Buffer.from(secretKey),
+    pk: Buff.from(publicKey),
+    sk: Buff.from(secretKey),
   });
 };
 
@@ -133,7 +134,7 @@ exports.sign = async function(message, publicKey, secretKey){
   await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
-  if ('string' === typeof message) message = Buffer.from(message);
+  if ('string' === typeof message) message = Buff.from(message);
   checkArguments({message,publicKey,secretKey});
 
   var messageLen      = message.length;
@@ -157,16 +158,16 @@ exports.sign = async function(message, publicKey, secretKey){
   fn._free(secretKeyArrPtr);
   fn._free(sigPtr);
 
-  return Buffer.from(sig);
+  return Buff.from(sig);
 };
 
 exports.verify = async function(signature, message, publicKey){
   await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
-  if ('string' === typeof message) message = Buffer.from(message);
-  if (Array.isArray(signature)) signature = Buffer.from(signature);
-  if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
+  if ('string' === typeof message) message = Buff.from(message);
+  if (Array.isArray(signature)) signature = Buff.from(signature);
+  if (Array.isArray(publicKey)) publicKey = Buff.from(publicKey);
   checkArguments({signature,message,publicKey});
 
   var messageLen      = message.length;
@@ -194,8 +195,8 @@ exports.keyExchange = async function(publicKey, secretKey) {
   await instantiateModule();
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
-  if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
-  if (Array.isArray(secretKey)) secretKey = Buffer.from(secretKey);
+  if (Array.isArray(publicKey)) publicKey = Buff.from(publicKey);
+  if (Array.isArray(secretKey)) secretKey = Buff.from(secretKey);
   checkArguments({publicKey,secretKey});
 
   const sharedSecretArrPtr = fn._malloc(32);
@@ -211,5 +212,5 @@ exports.keyExchange = async function(publicKey, secretKey) {
   fn._free(publicKeyArrPtr);
   fn._free(secretKeyArrPtr);
 
-  return Buffer.from(sharedSecretArr);
+  return Buff.from(sharedSecretArr);
 };

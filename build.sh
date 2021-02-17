@@ -43,5 +43,5 @@ wasm-ld \
 
 # Make a .js version of the binaries
 cat <<EOJS > supercop.wasm.js
-module.exports = Buffer.from('$(base64 -w 0 < supercop.wasm)', 'base64');
+module.exports = '$(base64 -w 0 < supercop.wasm)';
 EOJS
