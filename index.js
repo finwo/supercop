@@ -1,6 +1,6 @@
 let   Module   = null;
 const isBuffer = require('is-buffer');
-const Buff     = ('function' === typeof Buffer) ? Buffer : require('buffer');
+const Buff     = ('function' === typeof Buffer) ? Buffer : require('buffer').Buffer;
 
 async function instantiateModule() {
   if (Module) return;
