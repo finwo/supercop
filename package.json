@@ -19,9 +19,6 @@
   "devDependencies": {
     "tape": "^5.0.1"
   },
-  "dependencies": {
-    "is-buffer": "^2.0.3"
-  },
   "funding": {
     "url": "https://github.com/sponsors/finwo"
   },
@@ -31,5 +28,9 @@
     "ref10",
     "elliptic",
     "curve"
-  ]
+  ],
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "is-buffer": "^2.0.5"
+  }
 }
