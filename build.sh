@@ -26,11 +26,13 @@ ${CC} \
   -S \
   -Os \
   supercop.c || exit 1
+
 ${LC} \
   -march=${arch} \
   -filetype=obj \
   -O3 \
   supercop.ll || exit 1
+
 wasm-ld \
   --no-entry \
   --import-memory \
