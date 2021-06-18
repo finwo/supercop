@@ -8,7 +8,7 @@
     "test": "node test.js",
     "prepublish": "npm test",
     "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{print $2}' | sed 's/[\",]//g' | tr -d '[[:space:]]') && npm deprecate \"supercop@<${PACKAGE_VERSION}\" \"Rolling release, please update to ${PACKAGE_VERSION}\"",
-    "build": "./build.sh"
+    "build": "make"
   },
   "repository": {
     "type": "git",
