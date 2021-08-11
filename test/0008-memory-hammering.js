@@ -11,7 +11,7 @@ test('Message hammering',async t => {
   const seed    = crypto.randomBytes(32);
   const keypair = await lib.createKeyPair(seed);
 
-  for(let size = 100; size <= 4096; size++) {
+  for(let size = 200; size <= 4096; size++) {
     const message          = Buffer.alloc(size);
 
     // Intentionally discard signatures, we're just hammering the memory here

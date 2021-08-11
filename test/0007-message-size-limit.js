@@ -11,8 +11,9 @@ test('Message size limit',async t => {
   const seed    = crypto.randomBytes(32);
   const keypair = await lib.createKeyPair(seed);
 
-  // Generates 8 loops, from 800..1500
-  for(let size = 800; size <= 1500; size += 100) {
+  // Generates 8 loops, from 800..2000
+  let i=0;
+  for(let size = 800; size <= 2200; size += 200) {
     const message          = Buffer.alloc(size);
     const signature_kp  = await keypair.sign(message);
     const signature_lib = await lib.sign(message, keypair.publicKey, keypair.secretKey);
