@@ -15,7 +15,7 @@ lib/supercop:
 lib/matter/libmatter.a:
 	mkdir -p lib
 	git clone https://github.com/finwo/matter lib/matter
-	$(MAKE) -C lib/matter
+	$(MAKE) -C lib/matter libmatter.a
 
 supercop.ll: lib/matter/libmatter.a lib/supercop
 	$(CC) \
