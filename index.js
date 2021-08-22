@@ -58,6 +58,9 @@ function checkArguments( namedArguments, callback ) {
   return callback();
 }
 
+// "default export", allows nicer imports from ES6/TS
+exports.default         = exports;
+
 // Export helpers
 exports._checkArguments = checkArguments;
 exports._randomBytes    = randomBytes;
