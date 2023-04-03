@@ -12,13 +12,15 @@ lib/supercop:
 	cd lib/supercop
 	bash -c 'cd lib/supercop && patch -p1 < ../../patch/supercop/00-single-file-compile.patch'
 
-lib/matter/libmatter.a:
+lib/matter:
 	mkdir -p lib
 	git clone https://github.com/finwo/matter lib/matter
-	$(MAKE) -C lib/matter libmatter.a
+
+lib/matter/libmatter.a: lib/matter
+	${MAKE} -C lib/matter libmatter.a
 
 supercop.ll: lib/matter/libmatter.a lib/supercop
-	$(CC) \
+	${CC} \
 		-nostdinc \
 		--target=${TARGET} \
 		-emit-llvm \
