@@ -4,61 +4,62 @@ CC=$(shell command -v clang clang-10 clang-8; true)
 LC=$(shell command -v llc llc-10 llc-8; true)
 LD=$(shell command -v wasm-ld wasm-ld-10; true)
 
+LIBS:=
+SRC:=
+
+SRC+=src/supercop.c
+
+override CFLAGS?=-Wall -O2 -D__WORDSIZE=32
+override LDFLAGS?=
+
+INCLUDES:=
+INCLUDES+=-I src
+
+include lib/.dep/config.mk
+
+SRC:=$(filter-out $(shell realpath lib/orlp/ed25519/src/seed.c), $(SRC))
+OBJ:=$(SRC:.c=.o)
+LLO:=$(SRC:.c=.ll)
+
+override CFLAGS+=$(INCLUDES)
+
 default: supercop.wasm.js
 
-lib/supercop:
-	mkdir -p lib
-	git clone https://github.com/orlp/ed25519 lib/supercop
-	cd lib/supercop
-	bash -c 'cd lib/supercop && patch -p1 < ../../patch/supercop/00-single-file-compile.patch'
+.PHONY: clean
+clean:
+	rm -rf $(OBJ)
+	rm -rf $(LLO)
 
-lib/matter:
-	mkdir -p lib
-	git clone https://github.com/finwo/matter lib/matter
-
-lib/matter/libmatter.a: lib/matter
-	${MAKE} -C lib/matter libmatter.a
-
-supercop.ll: lib/matter/libmatter.a lib/supercop
-	${CC} \
-		-nostdinc \
+%.o: %.c
+	${CC} ${CFLAGS} \
 		--target=${TARGET} \
 		-emit-llvm \
 		-fvisibility=hidden \
-		-fno-builtin \
-		-Ilib/matter/include \
-		-Ilib/matter/arch/${TARGET}/include \
 		-c \
 		-S \
 		-Os \
-		supercop.c || exit 1
-
-supercop.o: supercop.ll
+		-o $(@:.o=.ll) \
+		$(@:.o=.c) || exit 1
 	$(LC) \
 		-march=${arch} \
 		-filetype=obj \
 		-O3 \
-		supercop.ll || exit 1
+		-o $@ \
+		$(@:.o=.ll) || exit 1
 
-supercop.wasm: supercop.o lib/matter/libmatter.a
-	$(LD) \
+supercop.wasm: $(OBJ)
+	echo $(SRC)
+	${LD} ${LDFLAGS} \
 		--no-entry \
 		--import-memory \
 		--export-dynamic \
 		--strip-all \
-		-o supercop.wasm \
-		-Llib/matter \
-		-lmatter \
-		supercop.o || exit 1
+		-o $@ \
+		$(OBJ) || exit 1
 
 supercop.wasm.js: supercop.wasm
-	echo -n "// Built on "          >  supercop.wasm.js
-	LC_TIME=en_US date              >> supercop.wasm.js
-	echo -n "module.exports = '"    >> supercop.wasm.js
-	cat supercop.wasm | base64 -w 0 >> supercop.wasm.js
-	echo "';"                       >> supercop.wasm.js
-
-.PHONY: clean
-clean:
-	rm -f supercop.o
-	rm -f supercop.ll
+	echo -n "// Built on "       >  supercop.wasm.js
+	LC_TIME=en_US date           >> supercop.wasm.js
+	echo -n "module.exports = '" >> supercop.wasm.js
+	base64 -w 0 < supercop.wasm  >> supercop.wasm.js
+	echo "';"                    >> supercop.wasm.js
