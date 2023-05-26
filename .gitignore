@@ -1,6 +1,5 @@
 node_modules/
-.tern*
-package-lock.json
+/lib/
+/bak/
 *.o
 *.ll
-lib/
