@@ -22,12 +22,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: latest
       - name: Install @finwo/dep
         uses: finwo/dep@edge
+      - name: Set up Clang
+        run: |
+          apt update
+          apt install -yq clang llvm lld
       - name: build wasm component
         run: |
           dep i

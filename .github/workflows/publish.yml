@@ -25,10 +25,9 @@ jobs:
       - name: Install @finwo/dep
         uses: finwo/dep@edge
       - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: latest
-          platform: x64
+        run: |
+          apt update
+          apt install -yq clang llvm lld
       - name: build wasm component
         run: |
           dep i
