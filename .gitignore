@@ -5,4 +5,6 @@ node_modules/
 *.ll
 
 /supercop.wasm
-/supercop.wasm.js
+/src/supercop.wasm.ts
+.nyc_output/
+/dist/
