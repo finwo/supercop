@@ -22,11 +22,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v1
+      - name: Set up Clang
+        uses: egor-tensin/setup-clang@v1
         with:
-          version: "10.0"
-      - uses: finwo/dep@edge
+          version: latest
+      - name: Install @finwo/dep
+        uses: finwo/dep@edge
       - name: build wasm component
         run: |
           dep i
