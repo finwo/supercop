@@ -19,7 +19,7 @@
   },
   "scripts": {
     "prepublishonly": "npm test",
-    "test": "npm run linter && npm run build && node_modules/.bin/tap --reporter-arg=--reporter=html 'dist/test/**/*.test.js'",
+    "test": "npm run linter && npm run build && node_modules/.bin/tap --reporter-arg=--reporter=html --branches=50 --functions=90 --lines=98 --statements=81 'dist/test/**/*.test.js'",
     "clean": "rm -rf ./dist",
     "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:test",
     "build:wasm": "dep i && make",
