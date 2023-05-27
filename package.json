@@ -27,7 +27,8 @@
     "build:esm": "tsc -p ./config/tsconfig.esm.json && mv dist/esm/index.js dist/esm/index.mjs && mv dist/esm/index.js.map dist/esm/index.mjs.map",
     "build:test": "tsc -p ./config/tsconfig.test.json",
     "linter": "eslint src",
-    "postpublishonly": "PACKAGE_VERSION=$(jq -r .version < package.json) && PACKAGE_NAME=$(jq -r .name < package.json) && npm deprecate \"${PACKAGE_NAME}@<${PACKAGE_VERSION}\" \"Rolling release, please update to ${PACKAGE_VERSION}\""
+    "postpublishonly": "PACKAGE_VERSION=$(jq -r .version < package.json) && PACKAGE_NAME=$(jq -r .name < package.json) && npm deprecate \"${PACKAGE_NAME}@<${PACKAGE_VERSION}\" \"Rolling release, please update to ${PACKAGE_VERSION}\"",
+    "watch": "nodemon --watch src --ext ts --exec npm -- run build"
   },
   "repository": {
     "type": "git",
@@ -36,11 +37,12 @@
   "author": "Yersa Nordman <finwo@pm.me>",
   "license": "MIT",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.59.7",
-    "@typescript-eslint/parser": "^5.56.0",
     "@types/node": "^20.2.5",
     "@types/tap": "^15.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.56.0",
     "eslint": "^8.41.0",
+    "nodemon": "^2.0.22",
     "tap": "^16.3.4",
     "tape": "^5.0.1"
   },

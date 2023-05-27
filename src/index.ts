@@ -1,15 +1,7 @@
 import isBuffer = require('is-buffer');
 import { binary   } from './supercop.wasm';
 
-let Module: null | {
-  memory  : WebAssembly.Memory;
-  instance: WebAssembly.Instance;
-  exports : {[index:string]:any};
-} = null;
-
-async function instantiateModule() {
-  if (Module) return;
-
+const Module = (async () => {
   const memory  = new WebAssembly.Memory({initial: 2});
   const imports = {env: {memory}};
 
@@ -19,12 +11,17 @@ async function instantiateModule() {
 
   const program = await WebAssembly.instantiate(binary, imports);
 
-  Module       = {
+  return {
     memory  : memory,
     instance: program.instance,
     exports : program.instance.exports,
+  } as {
+    memory  : WebAssembly.Memory;
+    instance: WebAssembly.Instance;
+    exports : {[index:string]:any};
   };
-}
+})();
+
 
 function randomBytes(length: number) {
   return Buffer.from(new Array(length).fill(0).map(()=>Math.floor(Math.random()*256)));
@@ -64,35 +61,57 @@ export function isSecretKey(data: unknown): data is SecretKey {
 }
 
 export class KeyPair {
-  publicKey: PublicKey;
-  secretKey: SecretKey;
+  publicKey?: PublicKey;
+  secretKey?: SecretKey;
 
   constructor() {
     // Intentionally empty
   }
 
+  // Passes signing on to the exported stand-alone method
+  // Async, so the error = promise rejection
   async sign(message: string) {
-    // TODO: call main sign fn
+    if (!isSecretKey(this.secretKey)) throw new Error('No secret key on this keypair, only verification is possible');
+    if (!isPublicKey(this.publicKey)) throw new Error('Invalid public key');
+    return sign(message, this.publicKey, this.secretKey);
   }
 
-  async verify(signature: Signature, message: string) {
-    // TODO: call main verify fn
+  // Passes verification on to the exported stand-alone method
+  verify(signature: number[] | Signature, message: string) {
+    if (!isPublicKey(this.publicKey)) throw new Error('Invalid public key');
+    return verify(signature, message, this.publicKey);
+  }
+
+  keyExchange(theirPublicKey: number[] | PublicKey) {
+    if (!isSecretKey(this.secretKey)) throw new Error('Invalid secret key');
+    return keyExchange(theirPublicKey, this.secretKey);
+  }
+
+  static create(seed: number[] | Seed) {
+    return createKeyPair(seed);
+  }
+
+  static from( data: { publicKey: number[] | PublicKey, secretKey?: number[] | SecretKey } ) {
+    return keyPairFrom(data);
   }
 
 }
 
-export function keyPairFrom( data: { publicKey: PublicKey, secretKey: SecretKey } ): false | KeyPair {
+export function keyPairFrom( data: { publicKey: number[] | PublicKey, secretKey?: number[] | SecretKey } ): false | KeyPair {
   if ('object' !== typeof data) return false;
   if (!data) return false;
 
+  // Sanitization and sanity checking
+  data = { ...data };
+  if (Array.isArray(data.publicKey)) data.publicKey = Buffer.from(data.publicKey);
+  if (Array.isArray(data.secretKey)) data.secretKey = Buffer.from(data.secretKey);
   if (!isPublicKey(data.publicKey)) return false;
-  if (!isSecretKey(data.secretKey)) return false;
+  // Not checking the secretKey, allowed to be missing
 
   return Object.create(KeyPair, data);
 }
 
-export async function createKeyPair( seed: Seed | Array<number> ): Promise<false | KeyPair> {
-  await instantiateModule();
+export async function createKeyPair( seed: number[] | Seed ): Promise<false | KeyPair> {
 
   // Pre-fetch module components
   const fn  = (await Module).exports;
@@ -125,24 +144,24 @@ export async function createKeyPair( seed: Seed | Array<number> ): Promise<false
   });
 }
 
-export async function sign(message: string | Buffer, publicKey: PublicKey, secretKey: SecretKey): Promise<Signature> {
-  await instantiateModule();
+export async function sign(
+  message: string | Buffer,
+  publicKey: number[] | PublicKey,
+  secretKey: number[] | SecretKey
+): Promise<Signature> {
 
   // Pre-fetch module components
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
 
-  // Sanity checking
+  // Sanitization and sanity checking
+  if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
+  if (Array.isArray(secretKey)) secretKey = Buffer.from(secretKey);
   if (!isPublicKey(publicKey)) throw new Error('Invalid public key');
   if (!isSecretKey(secretKey)) throw new Error('Invalid secret key');
-
-
-
-
   if ('string' === typeof message) message = Buffer.from(message);
 
-  // checkArguments({message,publicKey,secretKey});
-
+  // Allocate memory on the wasm side to transfer variables
   const messageLen      = message.length;
   const messageArrPtr   = fn._malloc(messageLen);
   const messageArr      = new Uint8Array(mem.buffer, messageArrPtr, messageLen);
@@ -159,6 +178,7 @@ export async function sign(message: string | Buffer, publicKey: PublicKey, secre
 
   await fn.sign(sigPtr, messageArrPtr, messageLen, publicKeyArrPtr, secretKeyArrPtr);
 
+  // Free used memory on wasm side
   fn._free(messageArrPtr);
   fn._free(publicKeyArrPtr);
   fn._free(secretKeyArrPtr);
@@ -167,15 +187,23 @@ export async function sign(message: string | Buffer, publicKey: PublicKey, secre
   return Buffer.from(sig);
 }
 
-exports.verify = async function(signature, message, publicKey){
-  await instantiateModule();
+export async function verify(
+  signature: number[] | Signature,
+  message: string | Buffer,
+  publicKey: number[] | PublicKey
+): Promise<boolean> {
+
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
-  if ('string' === typeof message) message = Buffer.from(message);
+
+  // Sanitization and sanity checking
   if (Array.isArray(signature)) signature = Buffer.from(signature);
   if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
-  checkArguments({signature,message,publicKey});
+  if (!isPublicKey(publicKey)) throw new Error('Invalid public key');
+  if (!isSignature(signature)) throw new Error('Invalid signature');
+  if ('string' === typeof message) message = Buffer.from(message);
 
+  // Allocate memory on the wasm side to transfer variables
   const messageLen      = message.length;
   const messageArrPtr   = fn._malloc(messageLen);
   const messageArr      = new Uint8Array(mem.buffer, messageArrPtr, messageLen);
@@ -188,23 +216,31 @@ exports.verify = async function(signature, message, publicKey){
   signatureArr.set(signature);
   publicKeyArr.set(publicKey);
 
-  const res =  fn.verify(signatureArrPtr, messageArrPtr, messageLen, publicKeyArrPtr) === 1;
+  const res = fn.verify(signatureArrPtr, messageArrPtr, messageLen, publicKeyArrPtr) === 1;
 
+  // Free used memory on wasm side
   fn._free(messageArrPtr);
   fn._free(signatureArrPtr);
   fn._free(publicKeyArrPtr);
 
   return res;
-};
+}
 
-exports.keyExchange = async function(publicKey, secretKey) {
-  await instantiateModule();
+export async function keyExchange(
+  theirPublicKey: number[] | PublicKey,
+  ourSecretKey: number[] | SecretKey
+): Promise<Buffer> {
+
   const fn  = (await Module).exports;
   const mem = (await Module).memory;
-  if (Array.isArray(publicKey)) publicKey = Buffer.from(publicKey);
-  if (Array.isArray(secretKey)) secretKey = Buffer.from(secretKey);
-  checkArguments({publicKey,secretKey});
 
+  // Sanitization and sanity checking
+  if (Array.isArray(theirPublicKey)) theirPublicKey = Buffer.from(theirPublicKey);
+  if (Array.isArray(ourSecretKey)) ourSecretKey = Buffer.from(ourSecretKey);
+  if (!isPublicKey(theirPublicKey)) throw new Error('Invalid public key');
+  if (!isSecretKey(ourSecretKey)) throw new Error('Invalid secret key');
+
+  // Allocate memory on the wasm side to transfer variables
   const sharedSecretArrPtr = fn._malloc(32);
   const sharedSecretArr    = new Uint8Array(mem.buffer, sharedSecretArrPtr, 32);
   const publicKeyArrPtr    = fn._malloc(32);
@@ -212,11 +248,15 @@ exports.keyExchange = async function(publicKey, secretKey) {
   const secretKeyArrPtr    = fn._malloc(32);
   const secretKeyArr       = new Uint8Array(mem.buffer, sharedSecretArrPtr, 64);
 
+  publicKeyArr.set(theirPublicKey);
+  secretKeyArr.set(ourSecretKey);
+
   fn.key_exchange(sharedSecretArrPtr, publicKeyArrPtr, secretKeyArrPtr);
 
+  // Free used memory on wasm side
   fn._free(sharedSecretArrPtr);
   fn._free(publicKeyArrPtr);
   fn._free(secretKeyArrPtr);
 
   return Buffer.from(sharedSecretArr);
-};
+}
