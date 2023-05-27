@@ -40,22 +40,22 @@ function xIsBuffer(data: unknown): data is Buffer {
   return isBuffer(data);
 }
 
-export function isSeed(data: unknown): data is Seed {
+function isSeed(data: unknown): data is Seed {
   if (!xIsBuffer(data)) return false;
   return data.length === 32;
 }
 
-export function isPublicKey(data: unknown): data is PublicKey {
+function isPublicKey(data: unknown): data is PublicKey {
   if (!xIsBuffer(data)) return false;
   return data.length === 32;
 }
 
-export function isSignature(data: unknown): data is Signature {
+function isSignature(data: unknown): data is Signature {
   if (!xIsBuffer(data)) return false;
   return data.length === 64;
 }
 
-export function isSecretKey(data: unknown): data is SecretKey {
+function isSecretKey(data: unknown): data is SecretKey {
   if (!xIsBuffer(data)) return false;
   return data.length === 64;
 }
@@ -87,6 +87,13 @@ export class KeyPair {
     return keyExchange(theirPublicKey, this.secretKey);
   }
 
+  toJSON() {
+    return {
+      publicKey: this.publicKey ? [...this.publicKey] : undefined,
+      secretKey: this.secretKey ? [...this.secretKey] : undefined,
+    };
+  }
+
   static create(seed: number[] | Seed) {
     return createKeyPair(seed);
   }
@@ -108,7 +115,9 @@ export function keyPairFrom( data: { publicKey: number[] | PublicKey, secretKey?
   if (!isPublicKey(data.publicKey)) return false;
   // Not checking the secretKey, allowed to be missing
 
-  return Object.create(KeyPair, data);
+  const keypair = new KeyPair();
+  Object.assign(keypair, data);
+  return keypair;
 }
 
 export async function createKeyPair( seed: number[] | Seed ): Promise<false | KeyPair> {
@@ -260,3 +269,5 @@ export async function keyExchange(
 
   return Buffer.from(sharedSecretArr);
 }
+
+export default KeyPair;
