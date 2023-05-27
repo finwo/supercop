@@ -23,7 +23,7 @@ LLO:=$(SRC:.c=.ll)
 
 override CFLAGS+=$(INCLUDES)
 
-default: supercop.wasm.js
+default: src/supercop.wasm.ts
 
 .PHONY: clean
 clean:
@@ -57,9 +57,9 @@ supercop.wasm: $(OBJ)
 		-o $@ \
 		$(OBJ) || exit 1
 
-supercop.wasm.js: supercop.wasm
-	echo -n "// Built on "       >  supercop.wasm.js
-	LC_TIME=en_US date           >> supercop.wasm.js
-	echo -n "module.exports = '" >> supercop.wasm.js
-	base64 -w 0 < supercop.wasm  >> supercop.wasm.js
-	echo "';"                    >> supercop.wasm.js
+src/supercop.wasm.ts: supercop.wasm
+	echo -n "// Built on "                        >  $@
+	LC_TIME=en_US date                            >> $@
+	echo -n "export const binary = Buffer.from('" >> $@
+	base64 -w 0 < supercop.wasm                   >> $@
+	echo "', 'base64');"                          >> $@
