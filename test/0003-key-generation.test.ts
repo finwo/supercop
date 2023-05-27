@@ -1,20 +1,22 @@
-const isBuffer = require('is-buffer');
-const test     = require('tape');
-const lib      = require('../index');
+import tap = require('tap');
+import pbkdf2 = require('pbkdf2');
+import KeyPair from '../src/index';
 
-test('Key generation',async t => {
-  t.plan(6);
+(async () => {
 
-  const seed = await lib.createSeed();
+  const seed = pbkdf2.pbkdf2Sync('password', 'NaCl', 1, 32, 'sha512');
+  const kp   = await KeyPair.create(seed);
 
-  t.is(isBuffer(seed), true, 'Seed is a buffer'    );
-  t.is(seed.length   , 32  , 'Seed\'s length is 32');
+  tap.ok(Buffer.isBuffer(kp.publicKey), 'Created keypair has buffer as publicKey');
+  tap.ok(Buffer.isBuffer(kp.secretKey), 'Created keypair has buffer as secretKey');
 
-  const keys = await lib.createKeyPair(seed);
+  // Convince TSC the keys are buffers
+  if (!kp.publicKey) throw new Error();
+  if (!kp.secretKey) throw new Error();
 
-  t.is(isBuffer(keys.publicKey), true, 'Public key is a buffer'    );
-  t.is(keys.publicKey.length   , 32  , 'Public key\'s length is 32');
-  t.is(isBuffer(keys.secretKey), true, 'Secret key is a buffer'    );
-  t.is(keys.secretKey.length   , 64  , 'Secret key\'s length is 64');
-});
+  tap.ok(kp.publicKey.length == 32, 'Generated publicKey has length of 32 bytes');
+  tap.ok(kp.secretKey.length == 64, 'Generated secretKey has length of 64 bytes');
 
+  // Verify the same key is always generated from that one seed
+  tap.ok(kp.publicKey.toString('hex') == 'e4dfe299f037f094e9951abb4552977705902b0c42a7153192e803449c70a729', 'Got expected publicKey from known salt');
+})();

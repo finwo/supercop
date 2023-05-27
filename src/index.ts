@@ -1,13 +1,12 @@
-import isBuffer = require('is-buffer');
-import { binary   } from './supercop.wasm';
+import { binary } from './supercop.wasm';
 
 const Module = (async () => {
-  const memory  = new WebAssembly.Memory({initial: 2});
-  const imports = {env: {memory}};
+  const memory  = new WebAssembly.Memory({initial: 4});
+  const imports = {env: {memory}} as { env: { memory: WebAssembly.Memory, __heap_base?: WebAssembly.Global } };
 
-  // if ('function' === typeof WebAssembly.Global) {
-  //   imports.env.__stack_pointer = new WebAssembly.Global({value: 'i32', mutable: true});
-  // }
+  if ('function' === typeof WebAssembly.Global) {
+    imports.env.__heap_base = new WebAssembly.Global({value: 'i32', mutable: true});
+  }
 
   const program = await WebAssembly.instantiate(binary, imports);
 
@@ -37,7 +36,7 @@ type Seed      = Buffer;
 type Signature = Buffer;
 
 function xIsBuffer(data: unknown): data is Buffer {
-  return isBuffer(data);
+  return Buffer.isBuffer(data);
 }
 
 function isSeed(data: unknown): data is Seed {
@@ -70,19 +69,19 @@ export class KeyPair {
 
   // Passes signing on to the exported stand-alone method
   // Async, so the error = promise rejection
-  async sign(message: string) {
+  async sign(message: string | Buffer) {
     if (!isSecretKey(this.secretKey)) throw new Error('No secret key on this keypair, only verification is possible');
     if (!isPublicKey(this.publicKey)) throw new Error('Invalid public key');
     return sign(message, this.publicKey, this.secretKey);
   }
 
   // Passes verification on to the exported stand-alone method
-  verify(signature: number[] | Signature, message: string) {
+  verify(signature: number[] | Signature, message: string | Buffer) {
     if (!isPublicKey(this.publicKey)) throw new Error('Invalid public key');
     return verify(signature, message, this.publicKey);
   }
 
-  keyExchange(theirPublicKey: number[] | PublicKey) {
+  keyExchange(theirPublicKey?: number[] | PublicKey) {
     if (!isSecretKey(this.secretKey)) throw new Error('Invalid secret key');
     return keyExchange(theirPublicKey, this.secretKey);
   }
@@ -104,15 +103,15 @@ export class KeyPair {
 
 }
 
-export function keyPairFrom( data: { publicKey: number[] | PublicKey, secretKey?: number[] | SecretKey } ): false | KeyPair {
-  if ('object' !== typeof data) return false;
-  if (!data) return false;
+export function keyPairFrom( data: { publicKey: number[] | PublicKey, secretKey?: number[] | SecretKey } ): KeyPair {
+  if ('object' !== typeof data) throw new Error('Invalid input data');
+  if (!data) throw new Error('Invalid input data');
 
   // Sanitization and sanity checking
   data = { ...data };
   if (Array.isArray(data.publicKey)) data.publicKey = Buffer.from(data.publicKey);
   if (Array.isArray(data.secretKey)) data.secretKey = Buffer.from(data.secretKey);
-  if (!isPublicKey(data.publicKey)) return false;
+  if (!isPublicKey(data.publicKey)) throw new Error('Invalid public key');
   // Not checking the secretKey, allowed to be missing
 
   const keypair = new KeyPair();
@@ -120,7 +119,7 @@ export function keyPairFrom( data: { publicKey: number[] | PublicKey, secretKey?
   return keypair;
 }
 
-export async function createKeyPair( seed: number[] | Seed ): Promise<false | KeyPair> {
+export async function createKeyPair( seed: number[] | Seed ): Promise<KeyPair> {
 
   // Pre-fetch module components
   const fn  = (await Module).exports;
@@ -236,7 +235,7 @@ export async function verify(
 }
 
 export async function keyExchange(
-  theirPublicKey: number[] | PublicKey,
+  theirPublicKey: number[] | PublicKey | undefined,
   ourSecretKey: number[] | SecretKey
 ): Promise<Buffer> {
 
@@ -253,9 +252,9 @@ export async function keyExchange(
   const sharedSecretArrPtr = fn._malloc(32);
   const sharedSecretArr    = new Uint8Array(mem.buffer, sharedSecretArrPtr, 32);
   const publicKeyArrPtr    = fn._malloc(32);
-  const publicKeyArr       = new Uint8Array(mem.buffer, sharedSecretArrPtr, 32);
-  const secretKeyArrPtr    = fn._malloc(32);
-  const secretKeyArr       = new Uint8Array(mem.buffer, sharedSecretArrPtr, 64);
+  const publicKeyArr       = new Uint8Array(mem.buffer, publicKeyArrPtr, 32);
+  const secretKeyArrPtr    = fn._malloc(64);
+  const secretKeyArr       = new Uint8Array(mem.buffer, secretKeyArrPtr, 64);
 
   publicKeyArr.set(theirPublicKey);
   secretKeyArr.set(ourSecretKey);

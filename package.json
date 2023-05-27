@@ -28,7 +28,7 @@
     "build:test": "tsc -p ./config/tsconfig.test.json",
     "linter": "eslint src",
     "postpublishonly": "PACKAGE_VERSION=$(jq -r .version < package.json) && PACKAGE_NAME=$(jq -r .name < package.json) && npm deprecate \"${PACKAGE_NAME}@<${PACKAGE_VERSION}\" \"Rolling release, please update to ${PACKAGE_VERSION}\"",
-    "watch": "nodemon --watch src --ext ts --exec npm -- run build"
+    "watch": "nodemon --watch src --watch test --ext ts --exec npm -- run build"
   },
   "repository": {
     "type": "git",
@@ -37,20 +37,23 @@
   "author": "Yersa Nordman <finwo@pm.me>",
   "license": "MIT",
   "devDependencies": {
+    "@finwo/digest-pbkdf2": "^1.0.2",
     "@types/node": "^20.2.5",
+    "@types/pbkdf2": "^3.1.0",
     "@types/tap": "^15.0.8",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.56.0",
     "eslint": "^8.41.0",
     "nodemon": "^2.0.22",
-    "tap": "^16.3.4",
-    "tape": "^5.0.1"
+    "pbkdf2": "^3.1.2",
+    "tap": "^16.3.4"
   },
   "funding": {
     "url": "https://github.com/sponsors/finwo"
   },
   "files": [
-    "dist/",
+    "dist/cjs",
+    "dist/esm",
     "README.md",
     "LICENSE"
   ],
@@ -60,9 +63,5 @@
     "ref10",
     "elliptic",
     "curve"
-  ],
-  "dependencies": {
-    "buffer": "^6.0.3",
-    "is-buffer": "^2.0.5"
-  }
+  ]
 }
