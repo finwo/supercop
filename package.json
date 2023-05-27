@@ -46,7 +46,8 @@
     "eslint": "^8.41.0",
     "nodemon": "^2.0.22",
     "pbkdf2": "^3.1.2",
-    "tap": "^16.3.4"
+    "tap": "^16.3.4",
+    "typescript": "^4.9.5"
   },
   "funding": {
     "url": "https://github.com/sponsors/finwo"
