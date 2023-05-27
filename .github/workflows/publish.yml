@@ -22,6 +22,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - uses: finwo/dep@edge
+      - name: build wasm component
+        run: |
+          dep i
+          make
       - name: npm install and npm test
         run: |
           npm install
