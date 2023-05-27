@@ -1,26 +1,24 @@
-const crypto = require('crypto');
-const test   = require('tape');
-const lib    = require('../index');
+import tap = require('tap');
+import pbkdf2 = require('pbkdf2');
+import KeyPair, { createSeed } from '../src/index';
 
-test('Verify',async t => {
-  t.plan(4);
+(async () => {
 
-  const seed         = crypto.randomBytes(32);
-  const keys         = await lib.createKeyPair(seed);
-  const messageBuf   = Buffer.from('hello there m8');
-  const messageStr   =             'hello there m8';
-  const wrongMessage = await lib._randomBytes(messageBuf.length);
+  const seed   = pbkdf2.pbkdf2Sync('password', 'NaCl', 1, 32, 'sha512');
+  const goodKP = await KeyPair.create(seed);
+  const badKP  = await KeyPair.create(createSeed());
 
-  const signatureBuf = await lib.sign(messageBuf, keys.publicKey, keys.secretKey);
-  const signatureStr = await lib.sign(messageStr, keys.publicKey, keys.secretKey);
+  const messageBuf = Buffer.from('message');
+  const messageStr =             'message';
+  const messageBad = Buffer.from(createSeed());
 
-  t.is(Buffer.compare(signatureBuf, signatureStr), 0, 'String and buffer sourced signature match');
+  const signatureBuf = await goodKP.sign(messageBuf);
+  const signatureStr = await goodKP.sign(messageStr);
 
-  const wrongSeed = crypto.randomBytes(32);
-  const wrongKeys = await lib.createKeyPair(wrongSeed);
+  tap.ok(Buffer.compare(signatureBuf, signatureStr) === 0, 'Buffer and string input generate the same signature');
 
-  t.is(await lib.verify(signatureBuf, messageBuf, keys.publicKey)     , true , 'Signature verified message');
-  t.is(await lib.verify(signatureBuf, wrongMessage, keys.publicKey)   , false, 'Different messaged does not verify');
-  t.is(await lib.verify(signatureBuf, messageBuf, wrongKeys.publicKey), false, 'Different public key does not verify');
-});
-
+  tap.ok(await goodKP.verify(signatureBuf, messageBuf), 'Correct signature matches with original message buffer');
+  tap.ok(await goodKP.verify(signatureBuf, messageStr), 'Correct signature matches with original message string');
+  tap.notOk(await goodKP.verify(signatureBuf, messageBad), 'Correct signature fails with bad message buffer');
+  tap.notOk(await badKP.verify(signatureBuf, messageBuf), 'Correct signature fails with original message buffer on different key');
+})();

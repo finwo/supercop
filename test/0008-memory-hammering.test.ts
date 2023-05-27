@@ -1,25 +1,17 @@
 // This test was built based on a user-submitted bug: https://github.com/finwo/supercop/issues/4
 
-const isBuffer = require('is-buffer');
-const crypto   = require('crypto');
-const test     = require('tape');
-const lib      = require('../index');
+import tap = require('tap');
+import KeyPair, { createSeed } from '../src/index';
 
-test('Message hammering',async t => {
-  t.plan(1);
+(async () => {
 
-  const seed    = crypto.randomBytes(32);
-  const keypair = await lib.createKeyPair(seed);
+  const kp = await KeyPair.create(createSeed());
 
-  for(let size = 200; size <= 4096; size++) {
-    const message          = Buffer.alloc(size);
-
-    // Intentionally discard signatures, we're just hammering the memory here
-    await keypair.sign(message);
-    await lib.sign(message, keypair.publicKey, keypair.secretKey);
+  for(let size = 200; size <= 4096; size += 1) {
+    const message = Buffer.alloc(size);
+    await kp.sign(message);
   }
 
-  t.ok(true, 'Thread survived hammering supercop\'s memory');
+  tap.ok(true, 'Thread survived hammering supercop\'s memory');
 
-
-});
+})();
