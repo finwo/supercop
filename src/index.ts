@@ -30,31 +30,31 @@ export function createSeed() {
   return randomBytes(32);
 }
 
-type PublicKey = Buffer;
-type SecretKey = Buffer;
-type Seed      = Buffer;
-type Signature = Buffer;
+export type PublicKey = Buffer;
+export type SecretKey = Buffer;
+export type Seed      = Buffer;
+export type Signature = Buffer;
 
 function xIsBuffer(data: unknown): data is Buffer {
   return Buffer.isBuffer(data);
 }
 
-function isSeed(data: unknown): data is Seed {
+export function isSeed(data: unknown): data is Seed {
   if (!xIsBuffer(data)) return false;
   return data.length === 32;
 }
 
-function isPublicKey(data: unknown): data is PublicKey {
+export function isPublicKey(data: unknown): data is PublicKey {
   if (!xIsBuffer(data)) return false;
   return data.length === 32;
 }
 
-function isSignature(data: unknown): data is Signature {
+export function isSignature(data: unknown): data is Signature {
   if (!xIsBuffer(data)) return false;
   return data.length === 64;
 }
 
-function isSecretKey(data: unknown): data is SecretKey {
+export function isSecretKey(data: unknown): data is SecretKey {
   if (!xIsBuffer(data)) return false;
   return data.length === 64;
 }
