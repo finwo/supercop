@@ -85,7 +85,7 @@ Returns whether or not a piece of data can be used as a secret key
 
 Uses `Math.random` to generate a new key. Only use this as a last resort, as `crypto.randomBytes(32)` provides better randomization.
 
-### function createKeyPair(seed: number[] | Seed): Promise<KeyPair>
+### function createKeyPair(seed: number[] | Seed): Promise&lt;KeyPair&gt;
 
 Build a new KeyPair instance from the given seed.
 
@@ -93,15 +93,15 @@ Build a new KeyPair instance from the given seed.
 
 Constructs a new KeyPair instance from the key(s) provided you can use to operate with.
 
-### function sign(message: string | Buffer, publicKey: number[] | PublicKey, secretKey: number[] | SecretKey): Promise<Signature>
+### function sign(message: string | Buffer, publicKey: number[] | PublicKey, secretKey: number[] | SecretKey): Promise&lt;Signature&gt;
 
 Sign a message with the given keys, so it can be verified later
 
-### function verify(signature: number[] | Signature, message: string | Buffer, publicKey: number[] | PublicKey): Promise<boolean>
+### function verify(signature: number[] | Signature, message: string | Buffer, publicKey: number[] | PublicKey): Promise&lt;boolean&gt;
 
 Verify a message/signature combination using the given public key
 
-### function keyExchange(theirPublicKey: number[] | PublicKey | undefined, ourSecretKey: number[] | SecretKey): Promise<Buffer>
+### function keyExchange(theirPublicKey: number[] | PublicKey | undefined, ourSecretKey: number[] | SecretKey): Promise&lt;Buffer&gt;
 
 Generate a shared secret between 2 key pairs to use as seed for a symmetric encryption algorithm
 
