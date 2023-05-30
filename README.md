@@ -47,67 +47,65 @@ This package provides ed25519/ref10 operations from orlp's implementation into J
 The patching applied is so we can compile it with without relying on emscriptem, but instead go purely for [clang](https://clang.llvm.org/).
 
 
-## API reference
+## API reference / exports
 
-### exports
-
-#### type PublicKey: Buffer
+### type PublicKey: Buffer
 
 Represents a public key in a keypair, simply a 32-byte buffer
 
-#### type SecretKey: Buffer
+### type SecretKey: Buffer
 
 Represents a secret key in a keypair, simply a 64-byte buffer
 
-#### type Seed: Buffer
+### type Seed: Buffer
 
 Represents a seed to build a keypair from, simply a 32-byte buffer
 
-#### type Signature: Buffer
+### type Signature: Buffer
 
 Represents a signature you can use to verify a message, simply a 64-byte buffer
 
-#### function isSeed(data: unknown): data is Seed
+### function isSeed(data: unknown): data is Seed
 
 Returns whether or not a piece of data can be used as a seed
 
-#### function isPublicKey(data: unknown): data is PublicKey
+### function isPublicKey(data: unknown): data is PublicKey
 
 Returns whether or not a piece of data can be used as a public key
 
-#### function isSignature(data: unknown): data is Signature
+### function isSignature(data: unknown): data is Signature
 
 Returns whether or not a piece of data can be used as a signature
 
-#### function isSecretKey(data: unknown): data is SecretKey
+### function isSecretKey(data: unknown): data is SecretKey
 
 Returns whether or not a piece of data can be used as a secret key
 
-#### function createSeed(): Buffer
+### function createSeed(): Buffer
 
 Uses `Math.random` to generate a new key. Only use this as a last resort, as `crypto.randomBytes(32)` provides better randomization.
 
-#### function createKeyPair(seed: number[] | Seed): Promise<KeyPair>
+### function createKeyPair(seed: number[] | Seed): Promise<KeyPair>
 
 Build a new KeyPair instance from the given seed.
 
-#### function keyPairFrom({ publicKey: number[] | PublicKey, secretKey?: number[] | SecretKey }): KeyPair
+### function keyPairFrom({ publicKey: number[] | PublicKey, secretKey?: number[] | SecretKey }): KeyPair
 
 Constructs a new KeyPair instance from the key(s) provided you can use to operate with.
 
-#### function sign(message: string | Buffer, publicKey: number[] | PublicKey, secretKey: number[] | SecretKey): Promise<Signature>
+### function sign(message: string | Buffer, publicKey: number[] | PublicKey, secretKey: number[] | SecretKey): Promise<Signature>
 
 Sign a message with the given keys, so it can be verified later
 
-#### function verify(signature: number[] | Signature, message: string | Buffer, publicKey: number[] | PublicKey): Promise<boolean>
+### function verify(signature: number[] | Signature, message: string | Buffer, publicKey: number[] | PublicKey): Promise<boolean>
 
 Verify a message/signature combination using the given public key
 
-#### function keyExchange(theirPublicKey: number[] | PublicKey | undefined, ourSecretKey: number[] | SecretKey): Promise<Buffer>
+### function keyExchange(theirPublicKey: number[] | PublicKey | undefined, ourSecretKey: number[] | SecretKey): Promise<Buffer>
 
 Generate a shared secret between 2 key pairs to use as seed for a symmetric encryption algorithm
 
-#### class KeyPair
+### class KeyPair
 
 ```typescript
 class KeyPair {
