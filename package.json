@@ -63,6 +63,7 @@
     "supercop",
     "ref10",
     "elliptic",
-    "curve"
+    "curve",
+    "webassembly"
   ]
 }
