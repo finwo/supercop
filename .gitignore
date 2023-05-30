@@ -1,6 +1,10 @@
 node_modules/
-.tern*
-package-lock.json
+/lib/
+/bak/
 *.o
 *.ll
-lib/
+
+/supercop.wasm
+/src/supercop.wasm.ts
+.nyc_output/
+/dist/
