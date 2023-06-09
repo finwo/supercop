@@ -10,9 +10,9 @@ For when you don't want to dig through the whole API reference
 import { createSeed, KeyPair } from 'supercop';
 
 // Create keypairs, usable for keyExchange, signing and verifying
-const alice   = KeyPair.create(createSeed());
-const bob     = KeyPair.create(createSeed());
-const charlie = KeyPair.from(JSON.parse(fs.readFileSync('path-to-file.json')));
+const alice   = await KeyPair.create(createSeed());
+const bob     = await KeyPair.create(createSeed());
+const charlie = await KeyPair.from(JSON.parse(fs.readFileSync('path-to-file.json')));
 
 // Save bob's key, will become charlie's key in the next run
 fs.writeFileSync('path-to-file.json', JSON.stringify(bob));
