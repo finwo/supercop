@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/finwo/supercop"
+    "url": "git+https://github.com/finwo/supercop.git"
   },
   "author": "Yersa Nordman <finwo@pm.me>",
   "license": "MIT",
