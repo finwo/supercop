@@ -1,4 +1,5 @@
 import { binary } from './supercop.wasm';
+import { readFileSync } from 'fs';
 
 const Module = (async () => {
   const memory  = new WebAssembly.Memory({initial: 4});
@@ -8,6 +9,8 @@ const Module = (async () => {
     imports.env.__heap_base = new WebAssembly.Global({value: 'i32', mutable: true});
   }
 
+  console.log({ bufferSource: binary });
+  console.log(readFileSync('./supercop.wasm.ts').toString('utf-8'));
   const program = await WebAssembly.instantiate(binary, imports);
 
   return {
