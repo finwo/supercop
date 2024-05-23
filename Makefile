@@ -17,7 +17,7 @@ INCLUDES+=-I src
 
 include lib/.dep/config.mk
 
-SRC:=$(filter-out $(shell realpath lib/orlp/ed25519/src/seed.c), $(SRC))
+SRC:=$(filter-out lib/orlp/ed25519/src/seed.c, $(SRC))
 OBJ:=$(SRC:.c=.o)
 LLO:=$(SRC:.c=.ll)
 
@@ -58,8 +58,8 @@ supercop.wasm: $(OBJ)
 		$(OBJ) || exit 1
 
 src/supercop.wasm.ts: supercop.wasm
-	echo -n "// Built on "                        >  $@
-	LC_TIME=en_US date                            >> $@
-	echo -n "export const binary = Buffer.from('" >> $@
-	base64 -w 0 < supercop.wasm                   >> $@
-	echo "', 'base64');"                          >> $@
+	printf "// Built on "                                   >  $@
+	LC_TIME=en_US date                                      >> $@
+	printf "export const binary = Buffer.from('"            >> $@
+	base64 --encode < supercop.wasm | tr -d \\n | tr -d \\r >> $@
+	printf "', 'base64');"                                  >> $@
