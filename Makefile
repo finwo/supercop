@@ -58,8 +58,8 @@ supercop.wasm: $(OBJ)
 		$(OBJ) || exit 1
 
 src/supercop.wasm.ts: supercop.wasm
-	printf "// Built on "                                   >  $@
-	LC_TIME=en_US date                                      >> $@
-	printf "export const binary = Buffer.from('"            >> $@
-	base64 --encode < supercop.wasm | tr -d \\n | tr -d \\r >> $@
-	printf "', 'base64');"                                  >> $@
+	printf "// Built on "                          >  $@
+	LC_TIME=en_US date                             >> $@
+	printf "export const binary = Buffer.from('"   >> $@
+	base64 < supercop.wasm | tr -d \\n | tr -d \\r >> $@
+	printf "', 'base64');"                         >> $@
