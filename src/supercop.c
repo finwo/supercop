@@ -1,5 +1,3 @@
-#define ED25519_NO_SEED
-
 #define export __attribute__((visibility("default")))
 
 #ifndef __has_builtin         // Optional of course.
