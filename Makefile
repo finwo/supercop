@@ -1,16 +1,16 @@
 ARCH=wasm32
 TARGET=${ARCH}
-CC=$(shell command -v clang clang-10 clang-8; true)
-LC=$(shell command -v llc llc-10 llc-8; true)
-LD=$(shell command -v wasm-ld wasm-ld-10; true)
+CC:=$(shell command -v clang clang-10 clang-8; true)
+LC:=$(shell command -v llc llc-10 llc-8; true)
+LD:=$(shell command -v wasm-ld wasm-ld-10; true)
 
 LIBS:=
 SRC:=
 
 SRC+=src/supercop.c
 
-override CFLAGS?=-Wall -O2 -D__WORDSIZE=32
-override LDFLAGS?=
+CFLAGS?=-Wall -O2 -D__WORDSIZE=32
+LDFLAGS?=
 
 INCLUDES:=
 INCLUDES+=-I src
@@ -21,7 +21,7 @@ SRC:=$(filter-out lib/orlp/ed25519/src/seed.c, $(SRC))
 OBJ:=$(SRC:.c=.o)
 LLO:=$(SRC:.c=.ll)
 
-override CFLAGS+=$(INCLUDES)
+CFLAGS+=$(INCLUDES)
 
 default: src/supercop.wasm.ts
 
@@ -41,7 +41,7 @@ clean:
 		-o $(@:.o=.ll) \
 		$(@:.o=.c) || exit 1
 	$(LC) \
-		-march=${arch} \
+		-march=${ARCH} \
 		-filetype=obj \
 		-O3 \
 		-o $@ \
